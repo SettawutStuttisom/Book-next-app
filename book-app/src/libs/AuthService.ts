@@ -1,35 +1,29 @@
 import { RegisterForm } from "@/libs/types/RegisterForm";
-import { RegisterRes } from "@/libs/types/RegisterRes";
 
 export default class AuthService {
-  static async Register(data: RegisterForm): Promise<RegisterRes> {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+  static async Register(data: RegisterForm): Promise<any> {
+    const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Register failed: ${text}`);
+    }
     return response.json();
   }
 
-  static async Login(email: string, password: string) {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+  static async Login(data: { email: string; password: string }): Promise<any> {
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Login failed: ${text}`);
+    }
     return response.json();
-  }
-
-  static getUser() {
-    if (typeof window === "undefined") return null;
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
-  }
-
-  static logout() {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem("user");
   }
 }

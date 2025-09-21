@@ -1,54 +1,40 @@
 "use client";
-import { Book } from "@/types/book";
-import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function BookDetailPage() {
-  const { id } = useParams();
+export default function BooksPage() {
   const router = useRouter();
-  const [book, setBook] = useState<Book | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+    const savedUser = localStorage.getItem("user");
+    if (!savedUser) {
+      router.push("/login");
+    } else {
+      setUser(JSON.parse(savedUser));
+    }
+  }, [router]);
 
-        // 🔹 ใช้ URL backend ตรง ๆ เพื่อเช็ก
-        const response = await fetch(`http://localhost:3001/books/${id}`);
+  if (!user) return <p>กำลังตรวจสอบการเข้าสู่ระบบ...</p>;
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        setBook(data.book || data); // เผื่อ backend ส่ง { book: {...} } หรือส่ง {...} ตรงๆ
-      } catch (error) {
-        console.error("Error fetching book:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchData();
-  }, [id]);
-
-  if (loading) {
-    return <p>กำลังโหลดข้อมูล...</p>;
-  }
-
-  if (!book) {
-    return (
-      <div>
-        <h2>❌ ไม่พบข้อมูลหนังสือ</h2>
-        <button onClick={() => router.push("/")}>กลับไปหน้ารายการ</button>
-      </div>
-    );
-  }
+  // สมมุติข้อมูลหนังสือ
+  const books = [
+    { title: "Book A", author: "Author A", year: 2023, price: 250 },
+    { title: "Book B", author: "Author B", year: 2024, price: 350 },
+  ];
 
   return (
-    <div>
-      <h1>{book.title}</h1>
-      <p>✍️ ผู้แต่ง: {book.author}</p>
-      <p>{book.description}</p>
-      <p>💰 ราคา: {book.price} บาท</p>
-      <button onClick={() => router.push("/")}>⬅ กลับไปหน้ารายการ</button>
+    <div className="p-6">
+      <h1 className="text-2xl mb-4">ยินดีต้อนรับ {user.username}</h1>
+      <p>Email: {user.email}</p>
+      <h2 className="text-xl mt-4">รายการหนังสือ</h2>
+      <ul className="list-disc pl-6">
+        {books.map((book, idx) => (
+          <li key={idx} className="mt-2">
+            <strong>{book.title}</strong> — {book.author} ({book.year}) ราคา {book.price} บาท
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
