@@ -16,7 +16,7 @@ http://localhost:8081/
 -> username -> admin
 -> password -> password123
 
-```
+
 {
   "username": "teacher",
   "email": "teacher@kku.ac.th",
